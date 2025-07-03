@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.mc1510ty"
-version = "1.0.3"
+version = "1.1.0"
 
 repositories {
     maven {

@@ -14,7 +14,7 @@ public class GroupManager {
         return groups;
     }
 
-    public boolean isInGroup(String group) {
-        return groups.contains(group);
+    public int getPriority(String group) {
+        return groups.indexOf(group);
     }
 }

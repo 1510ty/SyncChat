@@ -26,10 +26,14 @@ public class RedisManager {
                 subscriberJedis.subscribe(new JedisPubSub() {
                     @Override
                     public void onMessage(String channel, String message) {
-                        plugin.getLogger().info("[Redis] " + channel + ": " + message);
+                        String group = channel.replace("chat_group:", "");
+                        plugin.getLogger().info("[Redis] " + group + ": " + message);
+
+                        // 既に処理済みならスキップ
+                        if (!MessageCache.shouldProcess(group, message, plugin.getGroupManager())) return;
 
                         Bukkit.getScheduler().runTask(plugin, () -> {
-                            Bukkit.broadcastMessage("[" + channel.replace("chat_group:", "") + "] " + message);
+                            Bukkit.broadcastMessage("[" + group + "] " + message);
                         });
                     }
                 }, groups.stream().map(group -> "chat_group:" + group).toArray(String[]::new));
@@ -41,6 +45,8 @@ public class RedisManager {
 
     public void publish(String group, String message) {
         publisherJedis.publish("chat_group:" + group, message);
+        // 自分が publish したメッセージもキャッシュしておく
+        MessageCache.addSentMessage(group, message);
     }
 
     public void close() {

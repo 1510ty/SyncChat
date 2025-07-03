@@ -3,7 +3,12 @@ package com.mc1510ty.SyncChat;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class SyncChat extends JavaPlugin {
 
@@ -15,17 +20,17 @@ public class SyncChat extends JavaPlugin {
         saveDefaultConfig();
         FileConfiguration config = getConfig();
 
-        this.groupManager = new GroupManager(config.getStringList("groups"));
-
         String host = config.getString("redis.host", "localhost");
         int port = config.getInt("redis.port", 6379);
+        List<String> groups = config.getStringList("groups");
 
-        this.redisManager = new RedisManager(this, host, port, groupManager.getGroups());
+        this.groupManager = new GroupManager(groups);
+        this.redisManager = new RedisManager(this, host, port, groups);
+
         redisManager.startSubscriber();
-
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
 
-        getLogger().info("ChatBridge enabled. Groups: " + groupManager.getGroups());
+        getLogger().info("SyncChat enabled. Groups: " + groups);
     }
 
     @Override
@@ -41,4 +46,3 @@ public class SyncChat extends JavaPlugin {
         return redisManager;
     }
 }
-
