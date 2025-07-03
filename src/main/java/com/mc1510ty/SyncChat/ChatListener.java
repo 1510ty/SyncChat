@@ -19,8 +19,13 @@ public class ChatListener implements Listener {
 
         String fullMessage = "<" + player + "> " + message;
 
+        // Redisに送信
         for (String group : plugin.getGroupManager().getGroups()) {
             plugin.getRedisManager().publish(group, fullMessage);
         }
+
+        // デフォルトのチャット送信を無効化
+        event.setCancelled(true);
     }
+
 }
