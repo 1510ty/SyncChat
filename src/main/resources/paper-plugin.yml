@@ -1,0 +1,5 @@
+name: SyncChat
+main: com.mc1510ty.SyncChat.SyncChat
+version: 1.0.0
+author: 1510ty
+api-version: 1.21
