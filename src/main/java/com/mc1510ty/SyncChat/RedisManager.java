@@ -9,19 +9,21 @@ import java.util.List;
 public class RedisManager {
 
     private final SyncChat plugin;
-    private final Jedis jedis;
+    private final Jedis subscriberJedis;
+    private final Jedis publisherJedis;
     private final List<String> groups;
 
     public RedisManager(SyncChat plugin, String host, int port, List<String> groups) {
         this.plugin = plugin;
-        this.jedis = new Jedis(host, port);
+        this.subscriberJedis = new Jedis(host, port);
+        this.publisherJedis = new Jedis(host, port);
         this.groups = groups;
     }
 
     public void startSubscriber() {
         new Thread(() -> {
             try {
-                jedis.subscribe(new JedisPubSub() {
+                subscriberJedis.subscribe(new JedisPubSub() {
                     @Override
                     public void onMessage(String channel, String message) {
                         plugin.getLogger().info("[Redis] " + channel + ": " + message);
@@ -38,11 +40,11 @@ public class RedisManager {
     }
 
     public void publish(String group, String message) {
-        jedis.publish("chat_group:" + group, message);
+        publisherJedis.publish("chat_group:" + group, message);
     }
 
     public void close() {
-        jedis.close();
+        subscriberJedis.close();
+        publisherJedis.close();
     }
 }
-
